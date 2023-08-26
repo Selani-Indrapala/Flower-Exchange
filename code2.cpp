@@ -63,8 +63,10 @@ class Orchid: public Flowers{
 */
 int main() {
 
-    //Open the CSV
-    ifstream file;
+    ofstream MyFile("filename.csv"); //File for output
+    MyFile << "Order ID,Cl. Ord. ID,Instrument,Side,Exec Status,Quantity,Price"<<endl; //Output file heading
+
+    ifstream file; //File to be read
     file.open("order2.csv");
     string line, sd;
     vector<string> words;
@@ -83,7 +85,13 @@ int main() {
         order.Price = stoi(words[4]);
         //cout<<order.ClientID<<" "<<order.Instrument<<" "<<order.Qty<<" "<<order.Price<<endl;
 
+
+        // Write to the file
+        MyFile << "Order," << order.ClientID << "," << order.Instrument <<","<<  words[2] <<",exec,"<< order.Qty<<","<< order.Price <<endl;
+
     }
+    MyFile.close();    
+
     file.close();
     return 0;
 }
