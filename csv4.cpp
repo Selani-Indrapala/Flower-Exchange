@@ -36,6 +36,15 @@ public:
         row.qty = qty;
         row.price = price;
 
+        OrderRow temp;
+        temp.orderID = orderID;
+        temp.clientOrder = clientOrder;
+        temp.instrument = instrument;
+        temp.side = side;
+        temp.execStatus = "New";
+        temp.qty = qty;
+        temp.price = price;
+
         if (side == 1) {
             buyTable_.push_back(row);
 
@@ -49,14 +58,14 @@ public:
                         }
 
                         //Update sellTable
-                        row.orderID = sellRow.orderID;
-                        row.clientOrder = sellRow.clientOrder;
-                        row.instrument = sellRow.instrument;
-                        row.side = sellRow.side;
-                        row.execStatus = "Fill";
-                        row.qty = sellRow.qty;
-                        row.price = sellRow.price;  
-                        sellTable_.push_back(row); 
+                        temp.orderID = sellRow.orderID;
+                        temp.clientOrder = sellRow.clientOrder;
+                        temp.instrument = sellRow.instrument;
+                        temp.side = sellRow.side;
+                        temp.execStatus = "Fill";
+                        temp.qty = sellRow.qty;
+                        temp.price = sellRow.price;  
+                        sellTable_.push_back(temp); 
                         break; // Only update the first matching sellTable order
                     }
                     else if (row.qty > sellRow.qty){                        
@@ -66,14 +75,14 @@ public:
                         }
 
                         //Update sellTable
-                        row.orderID = sellRow.orderID;
-                        row.clientOrder = sellRow.clientOrder;
-                        row.instrument = sellRow.instrument;
-                        row.side = sellRow.side;
-                        row.execStatus = "Fill";
-                        row.qty = sellRow.qty;
-                        row.price = sellRow.price;  
-                        sellTable_.push_back(row); 
+                        temp.orderID = sellRow.orderID;
+                        temp.clientOrder = sellRow.clientOrder;
+                        temp.instrument = sellRow.instrument;
+                        temp.side = sellRow.side;
+                        temp.execStatus = "Fill";
+                        temp.qty = sellRow.qty;
+                        temp.price = sellRow.price;  
+                        sellTable_.push_back(temp); 
                     }
                     else{
                         // Update the corresponding buyTable order
@@ -82,14 +91,14 @@ public:
                         }
 
                         //Update sellTable
-                        row.orderID = sellRow.orderID;
-                        row.clientOrder = sellRow.clientOrder;
-                        row.instrument = sellRow.instrument;
-                        row.side = sellRow.side;
-                        row.execStatus = "PFill";
-                        row.qty = sellRow.qty;
-                        row.price = sellRow.price;  
-                        sellTable_.push_back(row); 
+                        temp.orderID = sellRow.orderID;
+                        temp.clientOrder = sellRow.clientOrder;
+                        temp.instrument = sellRow.instrument;
+                        temp.side = sellRow.side;
+                        temp.execStatus = "PFill";
+                        temp.qty = sellRow.qty;
+                        temp.price = sellRow.price;  
+                        sellTable_.push_back(temp); 
                         break; // Only update the first matching sellTable order
                     }
                     
@@ -104,22 +113,56 @@ public:
             // Check if there are matching buyTable orders
             for (auto& buyRow : buyTable_) {
                 if (row.price <= buyRow.price) {
+                    if(row.qty==buyRow.qty){
+                        // Update the corresponding sellTable order
+                        for (auto& sellRowToUpdate : sellTable_) {
+                            sellRowToUpdate.execStatus = "Fill";
+                        }
 
-                    // Update the corresponding sellTable order
-                    for (auto& sellRowToUpdate : sellTable_) {
-                        sellRowToUpdate.execStatus = "Fill";
+                        //Update buyTable
+                        temp.orderID = buyRow.orderID;
+                        temp.clientOrder = buyRow.clientOrder;
+                        temp.instrument = buyRow.instrument;
+                        temp.side = buyRow.side;
+                        temp.execStatus = "Fill";
+                        temp.qty = buyRow.qty;
+                        temp.price = buyRow.price;  
+                        buyTable_.push_back(temp); 
+                        break; // Only update the first matching buyTable order
                     }
+                    else if(row.qty>buyRow.qty){
+                        // Update the corresponding sellTable order
+                        for (auto& sellRowToUpdate : sellTable_) {
+                            sellRowToUpdate.execStatus = "PFill";
+                        }
 
-                    //Update buyTable
-                    row.orderID = buyRow.orderID;
-                    row.clientOrder = buyRow.clientOrder;
-                    row.instrument = buyRow.instrument;
-                    row.side = buyRow.side;
-                    row.execStatus = "Fill";
-                    row.qty = buyRow.qty;
-                    row.price = buyRow.price;  
-                    sellTable_.push_back(row); 
-                    break; // Only update the first matching buyTable order
+                        //Update buyTable
+                        temp.orderID = buyRow.orderID;
+                        temp.clientOrder = buyRow.clientOrder;
+                        temp.instrument = buyRow.instrument;
+                        temp.side = buyRow.side;
+                        temp.execStatus = "Fill";
+                        temp.qty = buyRow.qty;
+                        temp.price = buyRow.price;  
+                        buyTable_.push_back(temp); 
+                    }
+                    else{
+                        // Update the corresponding sellTable order
+                        for (auto& sellRowToUpdate : sellTable_) {
+                            sellRowToUpdate.execStatus = "Fill";
+                        }
+
+                        //Update buyTable
+                        temp.orderID = buyRow.orderID;
+                        temp.clientOrder = buyRow.clientOrder;
+                        temp.instrument = buyRow.instrument;
+                        temp.side = buyRow.side;
+                        temp.execStatus = "PFill";
+                        temp.qty = buyRow.qty;
+                        temp.price = buyRow.price;  
+                        buyTable_.push_back(temp); 
+                        break; // Only update the first matching buyTable order
+                    }
                 }
             }            
             sort(sellTable_.begin(), sellTable_.end(), [](const OrderRow& a, const OrderRow& b) {
@@ -167,7 +210,7 @@ int main() {
     MyFile << "Order ID,Cl. Ord. ID,Instrument,Side,Exec Status,Quantity,Price" << endl; // Output file heading
 
     ifstream file; // File to be read
-    file.open("order4.csv");
+    file.open("order5.csv");
     string line;
     vector<string> words;
     int count = 0;
