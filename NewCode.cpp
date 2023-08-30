@@ -41,8 +41,10 @@ public:
             // Check if there are matching sellTable orders
             for (auto& sellRow : sellTable_) {
                 if (row.price >= sellRow.price) {
-                    row.execStatus = "Fill"; 
-                    buyTable_.push_back(row);
+                    // Update the corresponding sellTable order
+                    for (auto& buyRowToUpdate : buyTable_) {
+                        buyRowToUpdate.execStatus = "Fill";
+                    }
 
                     //Update sellTable
                     row.orderID = sellRow.orderID;
@@ -65,8 +67,11 @@ public:
             // Check if there are matching buyTable orders
             for (auto& buyRow : buyTable_) {
                 if (row.price <= buyRow.price) {
-                    row.execStatus = "Fill";
-                    sellTable_.push_back(row); // Add the original row
+
+                    // Update the corresponding sellTable order
+                    for (auto& sellRowToUpdate : sellTable_) {
+                        sellRowToUpdate.execStatus = "Fill";
+                    }
 
                     //Update buyTable
                     row.orderID = buyRow.orderID;
