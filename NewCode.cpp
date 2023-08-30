@@ -2,7 +2,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include <algorithm> // Include this for sorting
+#include <algorithm>
 #include <typeinfo>
 
 using namespace std;
@@ -26,25 +26,62 @@ public:
     }
 
     void insertRow(const std::string& orderID, const std::string& clientOrder, const std::string& instrument,
-                   int side, const std::string& execStatus, int qty, int price) {
+               int side, int qty, int price) {
         OrderRow row;
         row.orderID = orderID;
         row.clientOrder = clientOrder;
         row.instrument = instrument;
         row.side = side;
-        row.execStatus = execStatus;
+        row.execStatus = "New";
         row.qty = qty;
         row.price = price;
 
         if (side == 1) {
             buyTable_.push_back(row);
+            // Check if there are matching sellTable orders
+            for (auto& sellRow : sellTable_) {
+                if (row.price >= sellRow.price) {
+                    row.execStatus = "Fill"; 
+                    buyTable_.push_back(row);
+
+                    //Update sellTable
+                    row.orderID = sellRow.orderID;
+                    row.clientOrder = sellRow.clientOrder;
+                    row.instrument = sellRow.instrument;
+                    row.side = sellRow.side;
+                    row.execStatus = "Fill";
+                    row.qty = sellRow.qty;
+                    row.price = sellRow.price;  
+                    sellTable_.push_back(row); 
+                    break; // Only update the first matching sellTable order
+                }
+            }
             sort(buyTable_.begin(), buyTable_.end(), [](const OrderRow& a, const OrderRow& b) {
-                return a.price > b.price; // Sort in descending order of price
+                return a.price > b.price;
             });
+            
         } else if (side == 2) {
             sellTable_.push_back(row);
+            // Check if there are matching buyTable orders
+            for (auto& buyRow : buyTable_) {
+                if (row.price <= buyRow.price) {
+                    row.execStatus = "Fill";
+                    sellTable_.push_back(row); // Add the original row
+
+                    //Update buyTable
+                    row.orderID = buyRow.orderID;
+                    row.clientOrder = buyRow.clientOrder;
+                    row.instrument = buyRow.instrument;
+                    row.side = buyRow.side;
+                    row.execStatus = "Fill";
+                    row.qty = buyRow.qty;
+                    row.price = buyRow.price;  
+                    sellTable_.push_back(row); 
+                    break; // Only update the first matching buyTable order
+                }
+            }            
             sort(sellTable_.begin(), sellTable_.end(), [](const OrderRow& a, const OrderRow& b) {
-                return a.price < b.price; // Sort in ascending order of price
+                return a.price < b.price;
             });
         }
     }
@@ -88,7 +125,7 @@ int main() {
     MyFile << "Order ID,Cl. Ord. ID,Instrument,Side,Exec Status,Quantity,Price" << endl; // Output file heading
 
     ifstream file; // File to be read
-    file.open("order2.csv");
+    file.open("order3.csv");
     string line;
     vector<string> words;
     int count = 0;
@@ -103,11 +140,13 @@ int main() {
 
         // Items of the order as per the Flower class
         string OrderID = "ord" + to_string(count);
-        orders.insertRow(OrderID, words[0], words[1], stoi(words[2]), "Filled", stoi(words[3]), stoi(words[4]));
+        orders.insertRow(OrderID, words[0], words[1], stoi(words[2]), stoi(words[3]), stoi(words[4]));
     }
 
     orders.printTables(MyFile); // Print the tables to the output file
     MyFile.close();
+
+    cout << "\nTables printed in the terminal as well.\n";
 
     file.close();
     return 0;
