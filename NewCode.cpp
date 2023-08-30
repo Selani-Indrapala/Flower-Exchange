@@ -41,7 +41,7 @@ public:
             // Check if there are matching sellTable orders
             for (auto& sellRow : sellTable_) {
                 if (row.price >= sellRow.price) {
-                    // Update the corresponding sellTable order
+                    // Update the corresponding buyTable order
                     for (auto& buyRowToUpdate : buyTable_) {
                         buyRowToUpdate.execStatus = "Fill";
                     }
