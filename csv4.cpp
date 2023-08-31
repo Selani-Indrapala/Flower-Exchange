@@ -189,8 +189,7 @@ private:
 
     void printTable(const vector<OrderRow>& table, const string& tableName, ofstream& outputFile) const {
         cout << tableName << "\n";
-        cout << "Order ID | Client Order | Instrument | Side | Exec Status | Quantity | Price\n";
-        outputFile << "Order ID,Cl. Ord. ID,Instrument,Side,Exec Status,Quantity,Price" << endl;
+        cout << "Order ID | Client Order | Instrument | Side | Exec Status | Quantity | Price\n";\
         for (const auto& row : table) {
             cout << row.orderID << " | " << row.clientOrder << " | " << row.instrument
                  << " | " << row.side << " | " << row.execStatus << " | " << row.qty
