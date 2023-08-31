@@ -68,7 +68,21 @@ public:
                     }
                     else if (row.qty > sellRow.qty){                        
                         // Update the corresponding buyTable order
-                        row.execStatus = "PFill";
+                        int remainder = row.qty - sellRow.qty;
+                        for (auto& buyRowToUpdate : buyTable_) {
+                            buyRowToUpdate.qty = remainder;
+                            buyRowToUpdate.execStatus = "Rem";
+                        }
+
+                        //Add the PFill row
+                        temp.orderID = row.orderID;
+                        temp.clientOrder = row.clientOrder;
+                        temp.instrument = row.instrument;
+                        temp.side = row.side;
+                        temp.execStatus = "PFill";
+                        temp.qty = sellRow.qty;
+                        temp.price = row.price;  
+                        buyTable_.push_back(temp);
 
                         //Update sellTable
                         temp.orderID = sellRow.orderID;
