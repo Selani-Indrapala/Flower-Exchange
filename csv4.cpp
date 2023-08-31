@@ -53,9 +53,7 @@ public:
                 if (row.price >= sellRow.price) {
                     if(row.qty == sellRow.qty){
                         // Update the corresponding buyTable order
-                        for (auto& buyRowToUpdate : buyTable_) {
-                            buyRowToUpdate.execStatus = "Fill";
-                        }
+                        row.execStatus = "Fill";
 
                         //Update sellTable
                         temp.orderID = sellRow.orderID;
@@ -70,9 +68,7 @@ public:
                     }
                     else if (row.qty > sellRow.qty){                        
                         // Update the corresponding buyTable order
-                        for (auto& buyRowToUpdate : buyTable_) {
-                            buyRowToUpdate.execStatus = "PFill";
-                        }
+                        row.execStatus = "PFill";
 
                         //Update sellTable
                         temp.orderID = sellRow.orderID;
@@ -86,9 +82,7 @@ public:
                     }
                     else{
                         // Update the corresponding buyTable order
-                        for (auto& buyRowToUpdate : buyTable_) {
-                            buyRowToUpdate.execStatus = "Fill";
-                        }
+                        row.execStatus = "Fill";
 
                         //Update sellTable
                         temp.orderID = sellRow.orderID;
@@ -115,9 +109,7 @@ public:
                 if (row.price <= buyRow.price) {
                     if(row.qty==buyRow.qty){
                         // Update the corresponding sellTable order
-                        for (auto& sellRowToUpdate : sellTable_) {
-                            sellRowToUpdate.execStatus = "Fill";
-                        }
+                        row.execStatus = "Fill";
 
                         //Update buyTable
                         temp.orderID = buyRow.orderID;
@@ -132,9 +124,7 @@ public:
                     }
                     else if(row.qty>buyRow.qty){
                         // Update the corresponding sellTable order
-                        for (auto& sellRowToUpdate : sellTable_) {
-                            sellRowToUpdate.execStatus = "PFill";
-                        }
+                        row.execStatus = "PFill";
 
                         //Update buyTable
                         temp.orderID = buyRow.orderID;
@@ -148,9 +138,7 @@ public:
                     }
                     else{
                         // Update the corresponding sellTable order
-                        for (auto& sellRowToUpdate : sellTable_) {
-                            sellRowToUpdate.execStatus = "Fill";
-                        }
+                        row.execStatus = "Fill";
 
                         //Update buyTable
                         temp.orderID = buyRow.orderID;
@@ -209,7 +197,7 @@ int main() {
     MyFile << "Order ID,Cl. Ord. ID,Instrument,Side,Exec Status,Quantity,Price" << endl; // Output file heading
 
     ifstream file; // File to be read
-    file.open("order5.csv");
+    file.open("order4.csv");
     string line;
     vector<string> words;
     int count = 0;
