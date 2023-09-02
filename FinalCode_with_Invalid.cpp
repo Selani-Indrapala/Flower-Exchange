@@ -23,13 +23,19 @@ int CheckValidity(string orderID, string ClOrdID, string Instrument, int side, i
     int flag = 0;
     while (flag==0){
 
+        auto start = std::chrono::high_resolution_clock::now();
+        auto end =std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+
         //Finding Invalid Instruments
         string arr[] = {"Rose","Lavender","Lotus","Tulip","Orchid"};
         bool exists = find(arr, arr + 5, Instrument) != arr + 5;
         if (!exists) {
+            end = std::chrono::high_resolution_clock::now();
+            duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
             outputFile << orderID << "," << ClOrdID << "," << Instrument
                 << "," << side << ",Reject," << qty
-                << "," << price << "," << "Invalid Instrument" << "," << time << "\n";
+                << "," << price << "," << "Invalid Instrument" << "," << duration.count() << "\n";
             flag =  1;
             break;
         }
@@ -38,18 +44,22 @@ int CheckValidity(string orderID, string ClOrdID, string Instrument, int side, i
         int arr2[] = {1,2};
         bool exist = find(arr2, arr2 + 2, side) != arr2 + 2;
         if (!exist) {
+            end = std::chrono::high_resolution_clock::now();
+            duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
             outputFile << orderID << "," << ClOrdID << "," << Instrument
                 << "," << side << ",Reject," << qty
-                << "," << price << "," << "Invalid Side" << "," << time << "\n";
+                << "," << price << "," << "Invalid Side" << "," << duration.count() << "\n";
             flag = 1;
             break;
         }
 
         //Is price positive?
         if (price<=0){
+            end = std::chrono::high_resolution_clock::now();
+            duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
             outputFile << orderID << "," << ClOrdID << "," << Instrument
                 << "," << side << ",Reject," << qty
-                << "," << price << "," << "Invalid Price" << "," << time << "\n";
+                << "," << price << "," << "Invalid Price" << "," << duration.count() << "\n";
             flag = 1;
             break;
         }
@@ -57,9 +67,11 @@ int CheckValidity(string orderID, string ClOrdID, string Instrument, int side, i
         //Is quantity a multiple of 10 and within the given range?
         int rem = qty%10;
         if (rem!=0 || (qty>1000) || (qty<10)){
+            end = std::chrono::high_resolution_clock::now();
+            duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
             outputFile << orderID << "," << ClOrdID << "," << Instrument
                 << "," << side << ",Reject," << qty
-                << "," << price << "," << "Invalid Size" << "," << time << "\n";
+                << "," << price << "," << "Invalid Size" << "," << duration.count() << "\n";
             flag = 1;
             break;
         }
@@ -327,7 +339,7 @@ int main() {
     MyFile << "Order ID,Cl. Ord. ID,Instrument,Side,Exec Status,Quantity,Price,Reason,Execution Time" << endl; // Output file heading
 
     ifstream file; // File to be read
-    file.open("order6.csv");
+    file.open("order7.csv");
     string line; 
     vector<string> words;
     int Ord_cnt = 0;
