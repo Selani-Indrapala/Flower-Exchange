@@ -18,6 +18,9 @@ vector<string> getWords(string s) {
     return res;
 }
 
+void CheckValidity(string ordID, string Instrument, int side, int qty, int price){
+
+}
 class OrderTable {
 public:
     OrderTable(int initialCapacity = 100) {
@@ -41,9 +44,7 @@ public:
         if (side == 1) {
             int count = 0;
             if (sellTable_.size()==0){
-                outputFile << row.orderID << "," << row.clientOrder << "," << row.instrument
-                           << "," << row.side << "," << row.execStatus << "," << row.qty
-                           << "," << row.price << "\n";
+                writetoFile(outputFile, row);
             }
             row.execStatus = "Rem";
             buyTable_.push_back(row);
@@ -55,18 +56,13 @@ public:
                         if(row.qty == sellRow.qty){
                             // Update the corresponding buyTable order
                             row.execStatus = "Fill";
-                            outputFile << row.orderID << "," << row.clientOrder << "," << row.instrument
-                                       << "," << row.side << "," << row.execStatus << "," << row.qty
-                                       << "," << row.price << "\n";
+                            row.price = sellRow.price;
+                            writetoFile(outputFile, row);
                             row.qty = 0;
 
                             //Update sellTable
                             sellRow.execStatus = "Fill"; 
-                            sellRow.price = row.price;
-                            outputFile << sellRow.orderID << "," << sellRow.clientOrder << "," << sellRow.instrument
-                                       << "," << sellRow.side << "," << sellRow.execStatus << "," << sellRow.qty
-                                       << "," << sellRow.price << "\n";
-
+                            writetoFile(outputFile, sellRow);
                             sellRow.qty = 0;
 
                             break; // Only update the first matching sellTable order
@@ -76,15 +72,16 @@ public:
                             //Add the PFill row
                             row.execStatus = "PFill";
                             int remainder = row.qty - sellRow.qty;
+                            int init_price = row.price;
                             row.qty = sellRow.qty;
-                            outputFile << row.orderID << "," << row.clientOrder << "," << row.instrument
-                                       << "," << row.side << "," << row.execStatus << "," << row.qty
-                                       << "," << row.price << "\n";
+                            row.price = sellRow.price;
+                            writetoFile(outputFile, row);
 
                             //Add the remainder row
                             temp = row;
                             buyTable_.erase(buyTable_.end());
                             temp.qty = remainder;
+                            temp.price = init_price;
                             temp.execStatus = "Rem";
                             buyTable_.push_back(temp);
                             row = temp;
@@ -92,18 +89,13 @@ public:
                             //Update sellTable
                             sellRow.execStatus = "Fill";
                             sellRow.price = row.price;
-                            outputFile << sellRow.orderID << "," << sellRow.clientOrder << "," << sellRow.instrument
-                                       << "," << sellRow.side << "," << sellRow.execStatus << "," << sellRow.qty
-                                       << "," << sellRow.price << "\n";
+                            writetoFile(outputFile, sellRow);
                             sellRow.qty = 0;
                         }
                         else{
                             // Update the corresponding buyTable order
                             row.execStatus = "Fill";
-                            outputFile << row.orderID << "," << row.clientOrder << "," << row.instrument
-                                       << "," << row.side << "," << row.execStatus << "," << row.qty
-                                       << "," << row.price << "\n";
-                            
+                            writetoFile(outputFile, row);                            
                             row.qty = 0;
 
                             //Update sellTable
@@ -112,9 +104,7 @@ public:
                             sellRow.execStatus = "PFill";
                             sellRow.qty = row.qty;
                             sellRow.price = row.price;
-                            outputFile << sellRow.orderID << "," << sellRow.clientOrder << "," << sellRow.instrument
-                                       << "," << sellRow.side << "," << sellRow.execStatus << "," << sellRow.qty
-                                       << "," << sellRow.price << "\n";
+                            writetoFile(outputFile, sellRow);
                             sellRow.execStatus = "Rem";
                             sellRow.qty = remainder;
                             sellRow.price = init_price;
@@ -122,9 +112,7 @@ public:
                         }                        
                     }else if (row.price<sellRow.price & count == 0){
                         row.execStatus = "New";
-                        outputFile << row.orderID << "," << row.clientOrder << "," << row.instrument
-                                << "," << row.side << "," << row.execStatus << "," << row.qty
-                                << "," << row.price << "\n";
+                        writetoFile(outputFile, row);
                         row.execStatus = "Rem";
                         break;
                     }
@@ -137,9 +125,7 @@ public:
         } else if (side == 2) {
             int count = 0;
             if (buyTable_.size()==0){
-                outputFile << row.orderID << "," << row.clientOrder << "," << row.instrument
-                           << "," << row.side << "," << row.execStatus << "," << row.qty
-                           << "," << row.price << "\n";
+                writetoFile(outputFile, row);
             }
             row.execStatus = "Rem";
             sellTable_.push_back(row);
@@ -151,17 +137,13 @@ public:
                         if(row.qty==buyRow.qty){
                             // Update the corresponding sellTable order
                             row.execStatus = "Fill";
-                            outputFile << row.orderID << "," << row.clientOrder << "," << row.instrument
-                                       << "," << row.side << "," << row.execStatus << "," << row.qty
-                                       << "," << row.price << "\n";
+                            writetoFile(outputFile, row);
                             row.qty = 0;
 
                             //Update buyTable
                             buyRow.execStatus = "Fill"; 
                             buyRow.price = row.price;
-                            outputFile << buyRow.orderID << "," << buyRow.clientOrder << "," << buyRow.instrument
-                                       << "," << buyRow.side << "," << buyRow.execStatus << "," << buyRow.qty
-                                       << "," << buyRow.price << "\n";
+                            writetoFile(outputFile, buyRow);
 
                             buyRow.qty = 0;
 
@@ -175,9 +157,7 @@ public:
                             row.execStatus = "PFill";
                             row.qty = buyRow.qty;
                             row.price = buyRow.price;
-                            outputFile << row.orderID << "," << row.clientOrder << "," << row.instrument
-                                       << "," << row.side << "," << row.execStatus << "," << row.qty
-                                       << "," << row.price << "\n";
+                            writetoFile(outputFile, row);
 
                             //Add the remainder row
                             temp = row;
@@ -190,36 +170,27 @@ public:
 
                             //Update buyTable
                             buyRow.execStatus = "Fill";
-                            outputFile << buyRow.orderID << "," << buyRow.clientOrder << "," << buyRow.instrument
-                                       << "," << buyRow.side << "," << buyRow.execStatus << "," << buyRow.qty
-                                       << "," << buyRow.price << "\n";
+                            writetoFile(outputFile, buyRow);
                             buyRow.qty = 0;
                         }
                         else{
                             // Update the corresponding sellTable order
                             row.execStatus = "Fill";
-                            outputFile << row.orderID << "," << row.clientOrder << "," << row.instrument
-                                       << "," << row.side << "," << row.execStatus << "," << row.qty
-                                       << "," << row.price << "\n";
-                            
+                            writetoFile(outputFile, row);                            
                             row.qty = 0;
 
                             //Update buyTable
                             int remainder = buyRow.qty - row.qty;
                             buyRow.execStatus = "PFill";
                             buyRow.qty = row.qty;
-                            outputFile << buyRow.orderID << "," << buyRow.clientOrder << "," << buyRow.instrument
-                                       << "," << buyRow.side << "," << buyRow.execStatus << "," << buyRow.qty
-                                       << "," << buyRow.price << "\n";
+                            writetoFile(outputFile, buyRow);
                             buyRow.execStatus = "Rem";
                             buyRow.qty = remainder;
                             break; // Only update the first matching buyTable order
                         }
                     }else if (row.price<buyRow.price & count == 0){
                         row.execStatus = "New";
-                        outputFile << row.orderID << "," << row.clientOrder << "," << row.instrument
-                                << "," << row.side << "," << row.execStatus << "," << row.qty
-                                << "," << row.price << "\n";
+                        writetoFile(outputFile, row);
                         row.execStatus = "Rem";
                         break;
                     }
@@ -242,6 +213,12 @@ private:
         int price;
     };
 
+    void writetoFile(ofstream& outputFile, const OrderRow& row){
+            outputFile << row.orderID << "," << row.clientOrder << "," << row.instrument
+                                       << "," << row.side << "," << row.execStatus << "," << row.qty
+                                       << "," << row.price << "\n";
+    }
+
     vector<OrderRow> buyTable_;
     vector<OrderRow> sellTable_;
 };
@@ -254,7 +231,7 @@ int main() {
     file.open("order6.csv");
     string line;
     vector<string> words;
-    int count = 0;
+    int Ord_cnt = 0;
 
     OrderTable orders; // Moved the instance creation outside the loop
 
@@ -262,10 +239,10 @@ int main() {
     getline(file, line);
     while (getline(file, line)) {
         words = getWords(line); // words is a vector containing the string of each attribute in a row
-        count += 1;
+        Ord_cnt += 1;
 
         // Items of the order as per the Flower class
-        string OrderID = "ord" + to_string(count);
+        string OrderID = "ord" + to_string(Ord_cnt);
         orders.insertRow(OrderID, words[0], words[1], stoi(words[2]), stoi(words[3]), stoi(words[4]),MyFile);
 
     }
