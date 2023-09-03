@@ -362,7 +362,7 @@ int main() {
 
     //Checking if the file is present in the folder
     if (!file.is_open()) {
-        cerr << "Error: Could not find 'Orders.csv' for reading. Please make sure the relevant csv file is appropriately named and is in the same folder." << endl;
+        cerr << "Error: Could not find 'orders.csv' for reading. Please make sure the relevant csv file is appropriately named and is in the same folder." << endl;
         return 1;
     }
 
