@@ -52,7 +52,7 @@ int CheckValidity(string orderID, string ClOrdID, string Instrument, int side, i
             if (find(begin(validInstruments), end(validInstruments), Instrument) == end(validInstruments)) {
                 outputFile << orderID << "," << ClOrdID << "," << Instrument
                     << "," << side << ","<<1<<"," << qty
-                    << "," << price << "," << "Invalid Instrument" << "," << timestamp << "\n";
+                    << "," <<fixed<<setprecision(2)<< price << "," << "Invalid Instrument" << "," << timestamp << "\n";
                 flag = 1;
                 break;
             }
@@ -62,7 +62,7 @@ int CheckValidity(string orderID, string ClOrdID, string Instrument, int side, i
             if (find(begin(validSides), end(validSides), side) == end(validSides)) {
                 outputFile << orderID << "," << ClOrdID << "," << Instrument
                     << "," << side <<","<<1<<"," << qty
-                    << "," << price << "," << "Invalid Side" << "," << timestamp << "\n";
+                    << "," <<fixed<<setprecision(2)<< price << "," << "Invalid Side" << "," << timestamp << "\n";
                 flag = 1;
                 break;
             }
@@ -71,7 +71,7 @@ int CheckValidity(string orderID, string ClOrdID, string Instrument, int side, i
             if (price <= 0) {
                 outputFile << orderID << "," << ClOrdID << "," << Instrument
                     << "," << side <<","<<1<<"," << qty
-                    << "," << price << "," << "Invalid Price" << "," << timestamp << "\n";
+                    << "," <<fixed<<setprecision(2)<< price << "," << "Invalid Price" << "," << timestamp << "\n";
                 flag = 1;
                 break;
             }
@@ -81,7 +81,7 @@ int CheckValidity(string orderID, string ClOrdID, string Instrument, int side, i
             if (rem != 0 || (qty > 1000) || (qty < 10)) {
                 outputFile << orderID << "," << ClOrdID << "," << Instrument
                     << "," << side << ","<<1<<","  << qty
-                    << "," << price << "," << "Invalid Size" << "," << timestamp << "\n";
+                    << "," <<fixed<<setprecision(2)<< price << "," << "Invalid Size" << "," << timestamp << "\n";
                 flag = 1;
                 break;
             }
@@ -296,7 +296,7 @@ private:
         int side;
         int execStatus;
         int qty;
-        int price;
+        double price;
         string time;
         string reason;
     
@@ -305,15 +305,19 @@ private:
         return price > other.price;
     }
 
+    bool operator<(const OrderRow& other) const {
+        return price < other.price;
+    }
+
     };
 
     void writetoFile(ofstream& outputFile, const OrderRow& row) {
         outputFile << row.orderID << "," << row.clientOrder << "," << row.instrument
             << "," << row.side << "," << row.execStatus << "," << row.qty
-            << "," << row.price << "," << row.reason << "," << row.time << "\n";
+            << "," <<fixed<<setprecision(2)<< row.price << "," << row.reason << "," << row.time << "\n";
     }
 
-    priority_queue<OrderRow, vector<OrderRow>, greater<OrderRow>> buyTable_;
+    priority_queue<OrderRow, vector<OrderRow>, less<OrderRow>> buyTable_;
     priority_queue<OrderRow, vector<OrderRow>, greater<OrderRow>> sellTable_;
 };
 
@@ -322,7 +326,7 @@ int main() {
     MyFile << "Order ID,Cl. Ord. ID,Instrument,Side,Exec Status,Quantity,Price,Reason,Execution Time" << endl; // Output file heading
 
     ifstream file; // File to be read
-    file.open("order7_edited.csv");
+    file.open("order6_edited.csv");
     string line;
     vector<string> words;
     int Ord_cnt = 0;
@@ -349,20 +353,23 @@ int main() {
         // Items of the order as per the Flower class
         string OrderID = "ord" + to_string(Ord_cnt);
         string Instrument = words[1];
+        string ClOrd = words[0];
+        int side = stoi(words[2]);
+        int qty = stoi(words[3]);
+        double price = stoi(words[4]);
 
         // Get the current timestamp
         string timestamp = getCurrentDateTime(timestampStream);
 
         // Check if the order is Valid
-        int flag = CheckValidity(OrderID, words[0], Instrument, stoi(words[2]), stoi(words[3]), stoi(words[4]), MyFile,timestamp);
+        int flag = CheckValidity(OrderID, ClOrd, Instrument, side, qty, price, MyFile,timestamp);
         if (flag == 1) {
             continue;
         }
 
         // Use the appropriate OrderTable instance based on the instrument
-        if (orderTables.find(Instrument) != orderTables.end()) {
-            orderTables[Instrument].insertRow(OrderID, words[0], Instrument, stoi(words[2]), stoi(words[3]), stoi(words[4]), MyFile,timestamp);
-        }
+        orderTables[Instrument].insertRow(OrderID, ClOrd, Instrument, side, qty, price, MyFile,timestamp);
+        
     }
 
     MyFile.close();
