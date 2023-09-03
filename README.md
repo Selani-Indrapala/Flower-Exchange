@@ -15,3 +15,12 @@ To check the validity of the csv data, the CheckValidity function is used where 
 4. The price is negative.
 5. The quantity is not a multiple of 10 and does not lie within the range [10,1000].
 
+The OrderTable is next created with both a sellTable and buyTable implemented using priority queues. Depending on the data read by the csv, the row is then added into either the sell or buy table. The corresponding other table is checked to see if any orders can be matched. Three cases are considered in the matching which are,
+
+1. Both rows have an equal quantity in which case both are Filled.
+2. The new row has a higher quantity making it partially filled and the other Filled.
+3. The new row has a lower quantity making it Filled and the other partially filled.
+
+The code was tested for the given csv cases given which can be found under the folder "order csv examples". And for large data sets, the given data sets were duplicated using an algorithm which can be found under the "Testing" folder. 
+
+Different implementations of the code can be found under the "Old Code" folder. These implementations include vectors, priority queues, batch processing, etc. However, the final submission (FinalCode_Optimized.cpp) holds the code with the highest optimization.
